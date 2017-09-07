@@ -110,7 +110,7 @@ def gen_malicious(num_per_dga=10000):
 
     return domains, labels
 
-def gen_data(force=False):
+def gen_data(force=False, small=False):
     """Grab all data for train/test and save
 
     force:If true overwrite, else skip if file
@@ -130,3 +130,7 @@ def get_data(force=False):
     gen_data(force)
 
     return pickle.load(open(DATA_FILE))
+
+
+
+

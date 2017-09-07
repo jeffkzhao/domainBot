@@ -17,7 +17,7 @@ def build_model(max_features):
     model = Sequential()
     model.add(Conv1D(32, kernel_size=32,
                  activation='relu',
-                 input_shape=(max_features,1)))
+                 input_shape=(max_features, 1)))
 
     model.add(Conv1D(64, 32, activation='relu'))
     model.add(MaxPooling1D(pool_size=8))
@@ -39,6 +39,8 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
     # Extract data and labels
     X = [x[1] for x in indata]
     labels = [x[0] for x in indata]
+    X = X[:10]
+    labels = labels[:10]
 
     # Create feature vectors
     print "vectorizing data"
@@ -46,7 +48,8 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
     count_vec = ngram_vectorizer.fit_transform(X)
 
     max_features = count_vec.shape[1]
-    print count_vec.shape
+    count_vec = np.expand_dims(count_vec, axis=2)
+
     # Convert labels to 0-1
     y = [0 if x == 'benign' else 1 for x in labels]
 
