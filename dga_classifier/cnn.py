@@ -15,6 +15,7 @@ from sklearn.cross_validation import train_test_split
 def build_model(max_features):
     """Builds logistic regression model"""
     model = Sequential()
+
     model.add(Conv1D(32, kernel_size=32,
                  activation='relu',
                  input_shape=(max_features, 1)))
@@ -22,7 +23,7 @@ def build_model(max_features):
     model.add(Conv1D(64, 32, activation='relu'))
     model.add(MaxPooling1D(pool_size=8))
     model.add(Dropout(0.25))
-    #model.add(Flatten())
+    model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(1, activation='sigmoid'))
@@ -39,8 +40,7 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
     # Extract data and labels
     X = [x[1] for x in indata]
     labels = [x[0] for x in indata]
-    X = X[:10]
-    labels = labels[:10]
+
 
     # Create feature vectors
     print "vectorizing data"
@@ -48,7 +48,7 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
     count_vec = ngram_vectorizer.fit_transform(X)
 
     max_features = count_vec.shape[1]
-    count_vec = np.expand_dims(count_vec, axis=2)
+    #count_vec = np.expand_dims(count_vec, axis=2)
 
     # Convert labels to 0-1
     y = [0 if x == 'benign' else 1 for x in labels]
@@ -77,9 +77,9 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
 
         for ep in range(max_epoch):
 
-            model.fit(X_train.todense(), y_train, batch_size=batch_size, nb_epoch=1)
+            model.fit(np.expand_dims(X_train.todense(), axis = 2), y_train, batch_size=batch_size, nb_epoch=1)
 
-            t_probs = model.predict_proba(X_holdout.todense())
+            t_probs = model.predict_proba(np.expand_dims(X_holdout.todense(), axis = 2))
 
             t_auc = sklearn.metrics.roc_auc_score(y_holdout, t_probs)
 
@@ -89,8 +89,8 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
                 best_auc = t_auc
                 best_iter = ep
 
-                probs = model.predict_proba(X_test.todense())
-                pre = model.predict_classes(X_test.todense())
+                probs = model.predict_proba(np.expand_dims(X_test.todense(), axis = 2))
+                pre = model.predict_classes(np.expand_dims(X_test.todense(), axis = 2))
 
 
                 out_data = {'y':y_test, 'labels': label_test, 'probs':probs, 'epochs': ep,
@@ -104,6 +104,7 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
                 # No longer improving...break and calc statistics
                 if (ep-best_iter) > 5:
                     break
+
 
 
         final_data.append(out_data)
@@ -120,5 +121,4 @@ def run(max_epoch=1, nfolds=10, batch_size=128):
         f.write("\n")
 
     return final_data
-if __name__ == "__main__":
-    run()
+
