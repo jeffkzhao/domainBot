@@ -33,7 +33,7 @@ def build_model(max_features):
     return model
 
 
-def run(max_epoch=1, nfolds=10, batch_size=128):
+def run(max_epoch=20, nfolds=10, batch_size=128):
     """Run train/test on logistic regression model"""
     indata = data.get_data()
 
