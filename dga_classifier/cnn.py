@@ -34,7 +34,7 @@ def build_model(max_features, kernelSize):
 
 
 
-def run(max_epoch=5, nfolds=10, batch_size=128):
+def run(max_epoch=30, nfolds=10, batch_size=128):
     """Run train/test on logistic regression model"""
     indata = data.get_data()
 
@@ -65,7 +65,7 @@ def run(max_epoch=5, nfolds=10, batch_size=128):
         X_train, X_test, y_train, y_test, _, label_test = train_test_split(count_vec, y,
                                                                            labels, test_size=0.2)
 
-        for kernelSize in (2,4,8,32,64,128):
+        for kernelSize in (500,):
             print 'Build model...'
             model = build_model(max_features, kernelSize)
 
@@ -84,7 +84,13 @@ def run(max_epoch=5, nfolds=10, batch_size=128):
 
                 t_auc = sklearn.metrics.roc_auc_score(y_holdout, t_probs)
 
-                print 'Epoch %d: auc = %f (best=%f)' % (ep, t_auc, best_auc)
+                print 'Epoch %d: auc = %f (best=%f)\n' % (ep, t_auc, best_auc)
+
+                pre = model.predict_classes(np.expand_dims(X_test.todense(), axis=2))
+                accuracyT = sklearn.metrics.accuracy_score(y_test, pre)
+                recallT = sklearn.metrics.recall_score(y_test, pre)
+                f1T = sklearn.metrics.f1_score(y_test, pre)
+                print 'evaluate:',str(accuracyT), ' ', str(recallT), ' ', str(f1T), '\n'
 
                 if t_auc > best_auc:
                     best_auc = t_auc
