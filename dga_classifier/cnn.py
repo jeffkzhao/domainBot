@@ -16,11 +16,13 @@ def build_model(max_features, kernelSize):
     """Builds logistic regression model"""
     model = Sequential()
 
-    model.add(Conv1D(32, kernelSize,
+    model.add(Conv1D(128, kernelSize,
                  activation='relu',
                  input_shape=(max_features, 1)))
 
-    model.add(Conv1D(64, kernelSize, activation='relu'))
+    model.add(Conv1D(128, kernelSize, activation='relu'))
+    model.add(Conv1D(128, kernelSize, activation='relu'))
+    model.add(Conv1D(128, kernelSize, activation='relu'))
     model.add(MaxPooling1D(pool_size=8))
     model.add(Dropout(0.25))
     model.add(Flatten())
