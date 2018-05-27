@@ -29,7 +29,7 @@ def build_model(max_features):
     return model
 
 
-def run(max_epoch=20, nfolds=10, batch_size=128):
+def run(max_epoch=2, nfolds=10, batch_size=128):
     """Run train/test on logistic regression model"""
     indata = data.get_data()
 
@@ -93,6 +93,7 @@ def run(max_epoch=20, nfolds=10, batch_size=128):
                 accuracy = sklearn.metrics.accuracy_score(y_test, pre)
                 recall = sklearn.metrics.recall_score(y_test, pre)
                 f1 = sklearn.metrics.f1_score(y_test, pre)
+                print(accuracy)
 
             else:
                 # No longer improving...break and calc statistics
@@ -101,7 +102,7 @@ def run(max_epoch=20, nfolds=10, batch_size=128):
 
 
         final_data.append(out_data)
-
+        model.save('bigramMode.h5')
     with open("f1result.txt", 'a') as f:
         f.write("##bigram result: \n")
 
