@@ -1,6 +1,6 @@
-*.pkl
 *.png
 *.pyc
 *.txt
 *.xml
 *.iml
+*.swp
