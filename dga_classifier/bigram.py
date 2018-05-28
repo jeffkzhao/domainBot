@@ -4,7 +4,7 @@ from keras.layers.core import Dense
 from keras.layers import Dropout
 from keras.models import Sequential
 from keras.layers.embeddings import Embedding
-
+import cPickle as pickle
 import sklearn
 from sklearn import feature_extraction
 from sklearn.cross_validation import train_test_split
@@ -36,11 +36,26 @@ def run(max_epoch=2, nfolds=10, batch_size=128):
     # Extract data and labels
     X = [x[1] for x in indata]
     labels = [x[0] for x in indata]
+    # add realdomins to the vecrization processing
+    realdomains = []
+    with open('realtopdomains.txt', 'r') as f:
+        realdomains = [l for l in f.readlines()]
+
+    lenofx = len(X)
+
+    X += realdomains
 
     # Create feature vectors
     print "vectorizing data"
     ngram_vectorizer = feature_extraction.text.CountVectorizer(analyzer='char', ngram_range=(2, 2))
     count_vec = ngram_vectorizer.fit_transform(X)
+
+    """
+    # get real data's vector matrix to ensure have the same shape with model
+    pickle.dump(count_vec[lenofx:, :], open('realtopdomain.pkl', 'w'))
+    """
+
+    count_vec = count_vec[:lenofx, :]
 
     max_features = count_vec.shape[1]
 
@@ -82,6 +97,7 @@ def run(max_epoch=2, nfolds=10, batch_size=128):
             print 'Epoch %d: auc = %f (best=%f)' % (ep, t_auc, best_auc)
 
             if t_auc > best_auc:
+                """
                 best_auc = t_auc
                 best_iter = ep
 
@@ -91,29 +107,24 @@ def run(max_epoch=2, nfolds=10, batch_size=128):
 
                 out_data = {'y':y_test, 'labels': label_test, 'probs':probs, 'epochs': ep,
                             'confusion_matrix': sklearn.metrics.confusion_matrix(y_test, probs > .5)}
-                pre_i = model.predict_classes(xi.todense())
-                accuracy = sklearn.metrics.accuracy_score(yi, pre_i)
+                """
+
                 #recall = sklearn.metrics.recall_score(y_test, pre)
                 #f1 = sklearn.metrics.f1_score(y_test, pre)
-                print 'accurracy: %f' % (accuracy)
+
 
             else:
                 # No longer improving...break and calc statistics
                 if (ep-best_iter) > 5:
                     break
 
+        pre_i = model.predict_classes(xi.todense())
+        accuracy = sklearn.metrics.accuracy_score(yi, pre_i)
+        print '\n accurracy: %f' % (accuracy)
 
-        final_data.append(out_data)
+
+        #final_data.append(out_data)
         model.save('bigramMode.h5')
-    with open("f1result.txt", 'a') as f:
-        f.write("##bigram result: \n")
 
-        f.write("accuracy: ")
-        f.write(str(accuracy))
-        f.write("; recall: ")
-        f.write(str(recall))
-        f.write( "; f1: ")
-        f.write(str(f1))
-        f.write("\n")
 
     return final_data
