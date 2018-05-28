@@ -63,6 +63,8 @@ def run(max_epoch=2, nfolds=10, batch_size=128):
         model = build_model(max_features)
 
         print "Train..."
+        xi = X_train
+        yi = y_train
         X_train, X_holdout, y_train, y_holdout = train_test_split(X_train, y_train, test_size=0.05)
 
         best_iter = -1
@@ -89,11 +91,11 @@ def run(max_epoch=2, nfolds=10, batch_size=128):
 
                 out_data = {'y':y_test, 'labels': label_test, 'probs':probs, 'epochs': ep,
                             'confusion_matrix': sklearn.metrics.confusion_matrix(y_test, probs > .5)}
-
-                accuracy = sklearn.metrics.accuracy_score(y_test, pre)
-                recall = sklearn.metrics.recall_score(y_test, pre)
-                f1 = sklearn.metrics.f1_score(y_test, pre)
-                print(accuracy)
+                pre_i = model.predict_classes(xi.todense())
+                accuracy = sklearn.metrics.accuracy_score(yi, pre_i)
+                #recall = sklearn.metrics.recall_score(y_test, pre)
+                #f1 = sklearn.metrics.f1_score(y_test, pre)
+                print 'accurracy: %f' % (accuracy)
 
             else:
                 # No longer improving...break and calc statistics
